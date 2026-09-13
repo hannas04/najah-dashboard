@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Najah Library — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:            #FDFBF5;
+    --surface:       #F5F0E3;
+    --ink:           #22302A;
+    --ink-soft:      #5B6960;
+    --line:          #E2DABE;
+    --primary:       #1B4B3D;
+    --primary-dark:  #0F2E24;
+    --primary-tint:  #E7EEE9;
+    --gold:          #AD8438;
+    --danger:        #A23B2E;
+    --danger-tint:   #F5E7E4;
+    --radius:        3px;
+    --serif: "Amiri", "Georgia", serif;
+    --sans:  "Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  *,*::before,*::after{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); line-height:1.5; }
+  h1,h2,h3{ font-family:var(--serif); color:var(--primary-dark); margin:0; }
+  p{ margin:0; color:var(--ink-soft); }
+  a{ color:inherit; }
+  button{ font-family:inherit; cursor:pointer; }
+  input, select, textarea{ font-family:inherit; font-size:14px; }
+  :focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+
+  .hidden{ display:none !important; }
+
+  /* ---------- Config notice ---------- */
+  .config-banner{
+    background:#3A2A14; color:#F3E6C9; padding:12px 24px; font-size:13.5px; text-align:center;
+  }
+  .config-banner code{ background:rgba(255,255,255,0.12); padding:2px 6px; border-radius:2px; }
+
+  /* ---------- Login screen ---------- */
+  .login-screen{
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(120% 140% at 50% -10%, #235746 0%, var(--primary) 42%, var(--primary-dark) 100%);
+    padding:24px;
+  }
+  .login-card{
+    background:var(--bg); width:100%; max-width:380px; padding:44px 36px;
+    border-radius:var(--radius); text-align:center;
+  }
+  .login-card .kicker{ font-family:var(--serif); color:var(--gold); font-size:14px; direction:rtl; display:block; margin-bottom:6px; }
+  .login-card h1{ font-size:26px; margin-bottom:6px; }
+  .login-card .sub{ font-size:13.5px; margin-bottom:28px; }
+  .field{ text-align:left; margin-bottom:16px; }
+  .field label{ display:block; font-size:13px; color:var(--ink-soft); margin-bottom:6px; }
+  .field input, .field select, .field textarea{
+    width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:var(--radius);
+    background:#fff; color:var(--ink);
+  }
+  .field textarea{ resize:vertical; min-height:80px; }
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    padding:11px 20px; border-radius:var(--radius); font-size:14px; font-weight:500;
+    border:1px solid transparent; transition:background .2s ease, color .2s ease, border-color .2s ease;
+  }
+  .btn-solid{ background:var(--primary); color:#fff; width:100%; }
+  .btn-solid:hover{ background:var(--primary-dark); }
+  .btn-outline{ border-color:var(--line); color:var(--ink); background:#fff; }
+  .btn-outline:hover{ border-color:var(--primary); color:var(--primary); }
+  .btn-danger{ border-color:var(--danger); color:var(--danger); background:#fff; }
+  .btn-danger:hover{ background:var(--danger); color:#fff; }
+  .btn-gold{ background:var(--gold); color:#1E1706; }
+  .btn-gold:hover{ background:#c39a4c; }
+  .btn-sm{ padding:7px 14px; font-size:13px; }
+  .login-error{ font-size:13px; color:var(--danger); margin-top:14px; min-height:16px; }
+
+  /* ---------- App shell ---------- */
+  .app-shell{ display:flex; min-height:100vh; }
+  .sidebar{
+    width:230px; flex:none; background:var(--primary-dark); color:#EDEBDD;
+    display:flex; flex-direction:column; padding:28px 0;
+  }
+  .sidebar .brand{ padding:0 24px 26px; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:16px; }
+  .sidebar .brand .name{ font-family:var(--serif); font-size:19px; color:#fff; }
+  .sidebar .brand .kicker{ display:block; font-family:var(--serif); font-size:12px; color:var(--gold); direction:rtl; margin-top:2px; }
+  .nav-item{
+    display:flex; align-items:center; gap:10px; padding:12px 24px; font-size:14.5px;
+    color:#C7D2CA; cursor:pointer; border-left:3px solid transparent;
+  }
+  .nav-item:hover{ color:#fff; }
+  .nav-item.active{ color:#fff; background:rgba(255,255,255,0.06); border-left-color:var(--gold); }
+  .sidebar-foot{ margin-top:auto; padding:16px 24px 0; border-top:1px solid rgba(255,255,255,0.1); }
+  .sidebar-foot .user-email{ font-size:12.5px; color:#9FAEA5; margin-bottom:10px; word-break:break-all; }
+
+  .main-panel{ flex:1; min-width:0; padding:36px 44px; }
+  .panel-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:14px; }
+  .panel-head h2{ font-size:24px; }
+  .panel-head p{ font-size:13.5px; margin-top:4px; }
+
+  /* ---------- Stat cards (overview) ---------- */
+  .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); margin-bottom:36px; }
+  .stat-card{ background:var(--bg); padding:24px; }
+  .stat-card strong{ display:block; font-family:var(--serif); font-size:30px; color:var(--primary-dark); }
+  .stat-card span{ font-size:13px; }
+
+  /* ---------- Data table ---------- */
+  .table-wrap{ border:1px solid var(--line); background:var(--bg); overflow-x:auto; }
+  table{ width:100%; border-collapse:collapse; font-size:13.5px; min-width:640px; }
+  th, td{ text-align:left; padding:12px 16px; border-bottom:1px solid var(--line); white-space:nowrap; }
+  th{ background:var(--surface); font-weight:600; color:var(--ink-soft); font-size:12.5px; text-transform:none; }
+  tr:last-child td{ border-bottom:none; }
+  td.wrap-text{ white-space:normal; max-width:320px; }
+  .row-actions{ display:flex; gap:8px; }
+  .empty-row td{ text-align:center; color:var(--ink-soft); padding:32px; }
+  .tag-pill{ border:1px solid var(--line); border-radius:12px; padding:2px 9px; font-size:12px; }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(15,46,36,0.45); display:flex; align-items:center; justify-content:center;
+    padding:24px; z-index:200;
+  }
+  .modal{
+    background:var(--bg); width:100%; max-width:520px; padding:32px; border-radius:var(--radius);
+    max-height:88vh; overflow-y:auto;
+  }
+  .modal h3{ font-size:19px; margin-bottom:20px; }
+  .modal-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:22px; }
+  .field-row{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .checkbox-row{ display:flex; align-items:center; gap:8px; margin-bottom:16px; }
+  .checkbox-row input{ width:auto; }
+  .upload-row{ display:flex; gap:8px; align-items:center; }
+  .upload-row input[type="file"]{ flex:1; font-size:12.5px; }
+  .upload-status{ font-size:12px; margin-top:6px; }
+
+  @media (max-width: 860px){
+    .app-shell{ flex-direction:column; }
+    .sidebar{ width:100%; flex-direction:row; align-items:center; padding:14px 20px; overflow-x:auto; }
+    .sidebar .brand{ border:none; padding:0 16px 0 0; margin:0; }
+    .nav-item{ border-left:none; border-bottom:3px solid transparent; padding:8px 14px; white-space:nowrap; }
+    .nav-item.active{ border-bottom-color:var(--gold); }
+    .sidebar-foot{ display:none; }
+    .main-panel{ padding:24px 20px; }
+    .stat-grid{ grid-template-columns:1fr 1fr; }
+    .field-row{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="configBanner" class="config-banner hidden">
+  Supabase isn't connected yet — open <code>admin.html</code> and fill in <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> near the top of the script.
+</div>
+
+<!-- ============ LOGIN SCREEN ============ -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <span class="kicker">مكتبة النجاح</span>
+    <h1>Najah Library</h1>
+    <p class="sub">Sign in to manage the Qur'an, Hadith, eBooks, and author content.</p>
+    <form id="loginForm">
+      <div class="field">
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" required autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-solid">Sign in</button>
+      <div class="login-error" id="loginError"></div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ APP SHELL ============ -->
+<div class="app-shell hidden" id="appShell">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="name">Najah Library</span>
+      <span class="kicker">لوحة التحكم</span>
+    </div>
+    <div class="nav-item active" data-view="overview">Overview</div>
+    <div class="nav-item" data-view="books">eBooks</div>
+    <div class="nav-item" data-view="hadith">Hadith</div>
+    <div class="nav-item" data-view="verses">Qur'an verses</div>
+    <div class="nav-item" data-view="authors">Authors</div>
+    <div class="nav-item" data-view="site" style="margin-top:auto;">View live site ↗</div>
+    <div class="sidebar-foot">
+      <div class="user-email" id="userEmail"></div>
+      <button class="btn btn-outline btn-sm" id="signOutBtn" style="width:100%;">Sign out</button>
+    </div>
+  </aside>
+
+  <main class="main-panel">
+
+    <!-- OVERVIEW -->
+    <section id="view-overview" class="view">
+      <div class="panel-head">
+        <div><h2>Overview</h2><p>A quick look at what's currently published.</p></div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card"><strong id="statBooks">–</strong><span>eBooks published</span></div>
+        <div class="stat-card"><strong id="statHadith">–</strong><span>Hadith entries</span></div>
+        <div class="stat-card"><strong id="statVerses">–</strong><span>Qur'an verses</span></div>
+        <div class="stat-card"><strong id="statAuthors">–</strong><span>Authors</span></div>
+      </div>
+      <p style="font-size:13.5px;">Changes you make in each section below appear on the public site the next time it loads — no separate "publish" step needed.</p>
+    </section>
+
+    <!-- BOOKS -->
+    <section id="view-books" class="view hidden">
+      <div class="panel-head">
+        <div><h2>eBooks</h2><p>Every title shown in the public library grid.</p></div>
+        <button class="btn btn-gold" id="addBookBtn">Add eBook</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Title</th><th>Author</th><th>Category</th><th>Language</th><th>Pages</th><th>Format</th><th></th></tr></thead>
+          <tbody id="booksTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- HADITH -->
+    <section id="view-hadith" class="view hidden">
+      <div class="panel-head">
+        <div><h2>Hadith</h2><p>The curated hadith shown in the "seeking knowledge" section.</p></div>
+        <button class="btn btn-gold" id="addHadithBtn">Add hadith</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Title</th><th>Body</th><th>Source</th><th>Order</th><th></th></tr></thead>
+          <tbody id="hadithTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- VERSES -->
+    <section id="view-verses" class="view hidden">
+      <div class="panel-head">
+        <div><h2>Qur'an verses</h2><p>The verses featured on the homepage Qur'an section.</p></div>
+        <button class="btn btn-gold" id="addVerseBtn">Add verse</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Arabic</th><th>Translation</th><th>Reference</th><th>Order</th><th></th></tr></thead>
+          <tbody id="versesTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- AUTHORS -->
+    <section id="view-authors" class="view hidden">
+      <div class="panel-head">
+        <div><h2>Authors</h2><p>Mark one author "Featured" to show them on the homepage.</p></div>
+        <button class="btn btn-gold" id="addAuthorBtn">Add author</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Name</th><th>Role</th><th>Featured</th><th></th></tr></thead>
+          <tbody id="authorsTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ============ MODAL ROOT ============ -->
+<div id="modalRoot"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  "use strict";
+
+  /* =====================================================================
+     1. PASTE YOUR SUPABASE PROJECT DETAILS HERE
+     Project Settings -> API in your Supabase dashboard.
+  ===================================================================== */
+  var SUPABASE_URL = "https://exlgdkjjcwcawzstaooi.supabase.co";       // e.g. "https://abcdEFGH.supabase.co"
+  var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4bGdka2pqY3djYXd6c3Rhb29pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyNTc2OTAsImV4cCI6MjEwNDgzMzY5MH0.i33ciFHGLC9WH4LUhcjhRc8QvlmU9qXtOiN6KL1YuCQ";  // the "anon public" key
+
+  var CATEGORY_OPTIONS = ["quran","hadith","fiqh","seerah","aqeedah","tazkiyah","children"];
+  var CATEGORY_LABEL = { quran:"Qur'an", hadith:"Hadith", fiqh:"Fiqh", seerah:"Seerah", aqeedah:"Aqeedah", tazkiyah:"Tazkiyah", children:"Children" };
+
+  if(!SUPABASE_URL || !SUPABASE_ANON_KEY){
+    document.getElementById('configBanner').classList.remove('hidden');
+  }
+
+  var db = (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY)
+    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    : null;
+
+  function escapeHtml(str){
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  var loginScreen = document.getElementById('loginScreen');
+  var appShell = document.getElementById('appShell');
+  var loginForm = document.getElementById('loginForm');
+  var loginError = document.getElementById('loginError');
+
+  /* ---------- Auth ---------- */
+  loginForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    loginError.textContent = '';
+    if(!db){
+      loginError.textContent = "Supabase isn't connected yet — see the banner at the top of the page.";
+      return;
+    }
+    var email = document.getElementById('loginEmail').value.trim();
+    var password = document.getElementById('loginPassword').value;
+    db.auth.signInWithPassword({ email: email, password: password }).then(function(res){
+      if(res.error){ loginError.textContent = res.error.message; return; }
+      enterApp(res.data.user);
+    });
+  });
+
+  document.getElementById('signOutBtn').addEventListener('click', function(){
+    if(db) db.auth.signOut();
+    appShell.classList.add('hidden');
+    loginScreen.classList.remove('hidden');
+  });
+
+  function enterApp(user){
+    loginScreen.classList.add('hidden');
+    appShell.classList.remove('hidden');
+    document.getElementById('userEmail').textContent = user && user.email ? user.email : '';
+    refreshOverview();
+    refreshBooks();
+    refreshHadith();
+    refreshVerses();
+    refreshAuthors();
+  }
+
+  if(db){
+    db.auth.getSession().then(function(res){
+      if(res.data && res.data.session){ enterApp(res.data.session.user); }
+    });
+  }
+
+  /* ---------- Sidebar navigation ---------- */
+  document.querySelectorAll('.nav-item').forEach(function(item){
+    item.addEventListener('click', function(){
+      var view = item.getAttribute('data-view');
+      if(view === 'site'){ window.open('index.html', '_blank'); return; }
+      document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+      item.classList.add('active');
+      document.querySelectorAll('.view').forEach(function(v){ v.classList.add('hidden'); });
+      document.getElementById('view-' + view).classList.remove('hidden');
+    });
+  });
+
+  /* ---------- Modal helper ---------- */
+  var modalRoot = document.getElementById('modalRoot');
+  function openModal(html){
+    modalRoot.innerHTML = '<div class="modal-overlay" id="modalOverlay"><div class="modal">' + html + '</div></div>';
+    document.getElementById('modalOverlay').addEventListener('click', function(e){
+      if(e.target.id === 'modalOverlay') closeModal();
+    });
+  }
+  function closeModal(){ modalRoot.innerHTML = ''; }
+
+  /* ---------- Overview ---------- */
+  function refreshOverview(){
+    if(!db) return;
+    db.from('books').select('id', { count:'exact', head:true }).then(function(r){ document.getElementById('statBooks').textContent = r.count != null ? r.count : '–'; });
+    db.from('hadiths').select('id', { count:'exact', head:true }).then(function(r){ document.getElementById('statHadith').textContent = r.count != null ? r.count : '–'; });
+    db.from('quran_verses').select('id', { count:'exact', head:true }).then(function(r){ document.getElementById('statVerses').textContent = r.count != null ? r.count : '–'; });
+    db.from('authors').select('id', { count:'exact', head:true }).then(function(r){ document.getElementById('statAuthors').textContent = r.count != null ? r.count : '–'; });
+  }
+
+  /* =====================================================================
+     BOOKS
+  ===================================================================== */
+  function refreshBooks(){
+    if(!db) return;
+    db.from('books').select('*').order('created_at', { ascending:false }).then(function(res){
+      var body = document.getElementById('booksTableBody');
+      if(res.error || !res.data || !res.data.length){
+        body.innerHTML = '<tr class="empty-row"><td colspan="7">No eBooks yet — add your first one.</td></tr>';
+        return;
+      }
+      body.innerHTML = res.data.map(function(b){
+        return '<tr>' +
+          '<td>' + escapeHtml(b.title) + '</td>' +
+          '<td>' + escapeHtml(b.author_name) + '</td>' +
+          '<td><span class="tag-pill">' + escapeHtml(CATEGORY_LABEL[b.category] || b.category) + '</span></td>' +
+          '<td>' + escapeHtml(b.language) + '</td>' +
+          '<td>' + (b.pages || '') + '</td>' +
+          '<td>' + escapeHtml(b.format) + '</td>' +
+          '<td class="row-actions">' +
+            '<button class="btn btn-outline btn-sm" data-edit-book="' + b.id + '">Edit</button>' +
+            '<button class="btn btn-danger btn-sm" data-delete-book="' + b.id + '">Delete</button>' +
+          '</td>' +
+        '</tr>';
+      }).join('');
+      body.querySelectorAll('[data-edit-book]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var row = res.data.find(function(x){ return x.id === btn.getAttribute('data-edit-book'); });
+          openBookModal(row);
+        });
+      });
+      body.querySelectorAll('[data-delete-book]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          if(!confirm('Delete this eBook? This cannot be undone.')) return;
+          db.from('books').delete().eq('id', btn.getAttribute('data-delete-book')).then(function(){ refreshBooks(); refreshOverview(); });
+        });
+      });
+    });
+  }
+
+  function openBookModal(row){
+    var isEdit = !!row;
+    row = row || {};
+    openModal(
+      '<h3>' + (isEdit ? 'Edit eBook' : 'Add eBook') + '</h3>' +
+      '<form id="bookForm">' +
+        '<div class="field"><label>Title</label><input type="text" id="bkTitle" value="' + escapeHtml(row.title||'') + '" required></div>' +
+        '<div class="field"><label>Author name</label><input type="text" id="bkAuthor" value="' + escapeHtml(row.author_name||'') + '" required></div>' +
+        '<div class="field-row">' +
+          '<div class="field"><label>Category</label><select id="bkCategory">' +
+            CATEGORY_OPTIONS.map(function(c){ return '<option value="'+c+'"'+(row.category===c?' selected':'')+'>'+CATEGORY_LABEL[c]+'</option>'; }).join('') +
+          '</select></div>' +
+          '<div class="field"><label>Language</label><input type="text" id="bkLanguage" value="' + escapeHtml(row.language||'English') + '"></div>' +
+        '</div>' +
+        '<div class="field-row">' +
+          '<div class="field"><label>Pages</label><input type="number" id="bkPages" value="' + (row.pages||'') + '"></div>' +
+          '<div class="field"><label>Format</label><input type="text" id="bkFormat" value="' + escapeHtml(row.format||'PDF') + '"></div>' +
+        '</div>' +
+        '<div class="field"><label>Cover tint (hex)</label><input type="text" id="bkColor" value="' + escapeHtml(row.cover_color||'#1B4B3D') + '"></div>' +
+        '<div class="field"><label>Description</label><textarea id="bkDescription">' + escapeHtml(row.description||'') + '</textarea></div>' +
+        '<div class="field">' +
+          '<label>Book file (PDF/EPUB)</label>' +
+          '<div class="upload-row">' +
+            '<input type="file" id="bkFile" accept=".pdf,.epub">' +
+            '<button type="button" class="btn btn-outline btn-sm" id="bkUploadBtn">Upload</button>' +
+          '</div>' +
+          '<div class="upload-status" id="bkUploadStatus"></div>' +
+          '<input type="text" id="bkFileUrl" value="' + escapeHtml(row.file_url||'') + '" placeholder="File URL (filled automatically after upload, or paste your own link)" style="margin-top:8px;">' +
+        '</div>' +
+        '<div class="modal-actions">' +
+          '<button type="button" class="btn btn-outline" id="cancelModalBtn">Cancel</button>' +
+          '<button type="submit" class="btn btn-solid" style="width:auto;">' + (isEdit ? 'Save changes' : 'Add eBook') + '</button>' +
+        '</div>' +
+      '</form>'
+    );
+
+    document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
+
+    document.getElementById('bkUploadBtn').addEventListener('click', function(){
+      var fileInput = document.getElementById('bkFile');
+      var status = document.getElementById('bkUploadStatus');
+      var file = fileInput.files[0];
+      if(!file){ status.textContent = 'Choose a file first.'; return; }
+      status.textContent = 'Uploading…';
+      var path = Date.now() + '-' + file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+      db.storage.from('book-files').upload(path, file).then(function(res){
+        if(res.error){ status.textContent = 'Upload failed: ' + res.error.message; return; }
+        var pub = db.storage.from('book-files').getPublicUrl(path);
+        document.getElementById('bkFileUrl').value = pub.data.publicUrl;
+        status.textContent = 'Uploaded ✓';
+      });
+    });
+
+    document.getElementById('bookForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      var payload = {
+        title: document.getElementById('bkTitle').value.trim(),
+        author_name: document.getElementById('bkAuthor').value.trim(),
+        category: document.getElementById('bkCategory').value,
+        language: document.getElementById('bkLanguage').value.trim() || 'English',
+        pages: parseInt(document.getElementById('bkPages').value, 10) || null,
+        format: document.getElementById('bkFormat').value.trim() || 'PDF',
+        cover_color: document.getElementById('bkColor').value.trim() || '#1B4B3D',
+        description: document.getElementById('bkDescription').value.trim(),
+        file_url: document.getElementById('bkFileUrl').value.trim()
+      };
+      var query = isEdit ? db.from('books').update(payload).eq('id', row.id) : db.from('books').insert(payload);
+      query.then(function(res){
+        if(res.error){ alert(res.error.message); return; }
+        closeModal(); refreshBooks(); refreshOverview();
+      });
+    });
+  }
+
+  document.getElementById('addBookBtn').addEventListener('click', function(){ openBookModal(null); });
+
+  /* =====================================================================
+     HADITH
+  ===================================================================== */
+  function refreshHadith(){
+    if(!db) return;
+    db.from('hadiths').select('*').order('sort_order', { ascending:true }).then(function(res){
+      var body = document.getElementById('hadithTableBody');
+      if(res.error || !res.data || !res.data.length){
+        body.innerHTML = '<tr class="empty-row"><td colspan="5">No hadith entries yet.</td></tr>';
+        return;
+      }
+      body.innerHTML = res.data.map(function(h){
+        return '<tr>' +
+          '<td>' + escapeHtml(h.title) + '</td>' +
+          '<td class="wrap-text">' + escapeHtml(h.body) + '</td>' +
+          '<td>' + escapeHtml(h.source_collection) + '</td>' +
+          '<td>' + (h.sort_order != null ? h.sort_order : '') + '</td>' +
+          '<td class="row-actions">' +
+            '<button class="btn btn-outline btn-sm" data-edit-hadith="' + h.id + '">Edit</button>' +
+            '<button class="btn btn-danger btn-sm" data-delete-hadith="' + h.id + '">Delete</button>' +
+          '</td>' +
+        '</tr>';
+      }).join('');
+      body.querySelectorAll('[data-edit-hadith]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var row = res.data.find(function(x){ return x.id === btn.getAttribute('data-edit-hadith'); });
+          openHadithModal(row);
+        });
+      });
+      body.querySelectorAll('[data-delete-hadith]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          if(!confirm('Delete this hadith entry?')) return;
+          db.from('hadiths').delete().eq('id', btn.getAttribute('data-delete-hadith')).then(function(){ refreshHadith(); refreshOverview(); });
+        });
+      });
+    });
+  }
+
+  function openHadithModal(row){
+    var isEdit = !!row;
+    row = row || {};
+    openModal(
+      '<h3>' + (isEdit ? 'Edit hadith' : 'Add hadith') + '</h3>' +
+      '<form id="hadithForm">' +
+        '<div class="field"><label>Title</label><input type="text" id="hdTitle" value="' + escapeHtml(row.title||'') + '" required></div>' +
+        '<div class="field"><label>Body (paraphrased meaning)</label><textarea id="hdBody" required>' + escapeHtml(row.body||'') + '</textarea></div>' +
+        '<div class="field-row">' +
+          '<div class="field"><label>Source collection</label><input type="text" id="hdSource" value="' + escapeHtml(row.source_collection||'') + '" placeholder="e.g. Sahih al-Bukhari"></div>' +
+          '<div class="field"><label>Display order</label><input type="number" id="hdOrder" value="' + (row.sort_order != null ? row.sort_order : 0) + '"></div>' +
+        '</div>' +
+        '<div class="modal-actions">' +
+          '<button type="button" class="btn btn-outline" id="cancelModalBtn">Cancel</button>' +
+          '<button type="submit" class="btn btn-solid" style="width:auto;">' + (isEdit ? 'Save changes' : 'Add hadith') + '</button>' +
+        '</div>' +
+      '</form>'
+    );
+    document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
+    document.getElementById('hadithForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      var payload = {
+        title: document.getElementById('hdTitle').value.trim(),
+        body: document.getElementById('hdBody').value.trim(),
+        source_collection: document.getElementById('hdSource').value.trim(),
+        sort_order: parseInt(document.getElementById('hdOrder').value, 10) || 0
+      };
+      var query = isEdit ? db.from('hadiths').update(payload).eq('id', row.id) : db.from('hadiths').insert(payload);
+      query.then(function(res){
+        if(res.error){ alert(res.error.message); return; }
+        closeModal(); refreshHadith(); refreshOverview();
+      });
+    });
+  }
+
+  document.getElementById('addHadithBtn').addEventListener('click', function(){ openHadithModal(null); });
+
+  /* =====================================================================
+     QUR'AN VERSES
+  ===================================================================== */
+  function refreshVerses(){
+    if(!db) return;
+    db.from('quran_verses').select('*').order('sort_order', { ascending:true }).then(function(res){
+      var body = document.getElementById('versesTableBody');
+      if(res.error || !res.data || !res.data.length){
+        body.innerHTML = '<tr class="empty-row"><td colspan="4">No verses added yet.</td></tr>';
+        return;
+      }
+      body.innerHTML = res.data.map(function(v){
+        return '<tr>' +
+          '<td class="wrap-text" dir="rtl">' + v.arabic_text + '</td>' +
+          '<td class="wrap-text">' + escapeHtml(v.translation_en) + '</td>' +
+          '<td>' + escapeHtml(v.reference) + '</td>' +
+          '<td>' + (v.sort_order != null ? v.sort_order : '') + '</td>' +
+        '</tr>'.replace('<td>' + (v.sort_order != null ? v.sort_order : '') + '</td>' + '</tr>',
+          '<td>' + (v.sort_order != null ? v.sort_order : '') + '</td>' +
+          '<td class="row-actions">' +
+            '<button class="btn btn-outline btn-sm" data-edit-verse="' + v.id + '">Edit</button>' +
+            '<button class="btn btn-danger btn-sm" data-delete-verse="' + v.id + '">Delete</button>' +
+          '</td></tr>');
+      }).join('');
+      body.querySelectorAll('[data-edit-verse]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var row = res.data.find(function(x){ return x.id === btn.getAttribute('data-edit-verse'); });
+          openVerseModal(row);
+        });
+      });
+      body.querySelectorAll('[data-delete-verse]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          if(!confirm('Delete this verse?')) return;
+          db.from('quran_verses').delete().eq('id', btn.getAttribute('data-delete-verse')).then(function(){ refreshVerses(); refreshOverview(); });
+        });
+      });
+    });
+  }
+
+  function openVerseModal(row){
+    var isEdit = !!row;
+    row = row || {};
+    openModal(
+      '<h3>' + (isEdit ? 'Edit verse' : 'Add verse') + '</h3>' +
+      '<form id="verseForm">' +
+        '<div class="field"><label>Arabic text</label><textarea id="vsArabic" dir="rtl" required>' + (row.arabic_text||'') + '</textarea></div>' +
+        '<div class="field"><label>English translation</label><textarea id="vsEnglish" required>' + escapeHtml(row.translation_en||'') + '</textarea></div>' +
+        '<div class="field-row">' +
+          '<div class="field"><label>Reference</label><input type="text" id="vsReference" value="' + escapeHtml(row.reference||'') + '" placeholder="e.g. Surah Al-Fatiha, 1:1–2"></div>' +
+          '<div class="field"><label>Display order</label><input type="number" id="vsOrder" value="' + (row.sort_order != null ? row.sort_order : 0) + '"></div>' +
+        '</div>' +
+        '<div class="modal-actions">' +
+          '<button type="button" class="btn btn-outline" id="cancelModalBtn">Cancel</button>' +
+          '<button type="submit" class="btn btn-solid" style="width:auto;">' + (isEdit ? 'Save changes' : 'Add verse') + '</button>' +
+        '</div>' +
+      '</form>'
+    );
+    document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
+    document.getElementById('verseForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      var payload = {
+        arabic_text: document.getElementById('vsArabic').value.trim(),
+        translation_en: document.getElementById('vsEnglish').value.trim(),
+        reference: document.getElementById('vsReference').value.trim(),
+        sort_order: parseInt(document.getElementById('vsOrder').value, 10) || 0
+      };
+      var query = isEdit ? db.from('quran_verses').update(payload).eq('id', row.id) : db.from('quran_verses').insert(payload);
+      query.then(function(res){
+        if(res.error){ alert(res.error.message); return; }
+        closeModal(); refreshVerses(); refreshOverview();
+      });
+    });
+  }
+
+  document.getElementById('addVerseBtn').addEventListener('click', function(){ openVerseModal(null); });
+
+  /* =====================================================================
+     AUTHORS
+  ===================================================================== */
+  function refreshAuthors(){
+    if(!db) return;
+    db.from('authors').select('*').order('created_at', { ascending:false }).then(function(res){
+      var body = document.getElementById('authorsTableBody');
+      if(res.error || !res.data || !res.data.length){
+        body.innerHTML = '<tr class="empty-row"><td colspan="4">No authors yet.</td></tr>';
+        return;
+      }
+      body.innerHTML = res.data.map(function(a){
+        return '<tr>' +
+          '<td>' + escapeHtml(a.name) + '</td>' +
+          '<td>' + escapeHtml(a.role||'') + '</td>' +
+          '<td>' + (a.is_featured ? '<span class="tag-pill">Featured</span>' : '') + '</td>' +
+          '<td class="row-actions">' +
+            '<button class="btn btn-outline btn-sm" data-edit-author="' + a.id + '">Edit</button>' +
+            '<button class="btn btn-danger btn-sm" data-delete-author="' + a.id + '">Delete</button>' +
+          '</td>' +
+        '</tr>';
+      }).join('');
+      body.querySelectorAll('[data-edit-author]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var row = res.data.find(function(x){ return x.id === btn.getAttribute('data-edit-author'); });
+          openAuthorModal(row);
+        });
+      });
+      body.querySelectorAll('[data-delete-author]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          if(!confirm('Delete this author?')) return;
+          db.from('authors').delete().eq('id', btn.getAttribute('data-delete-author')).then(function(){ refreshAuthors(); refreshOverview(); });
+        });
+      });
+    });
+  }
+
+  function openAuthorModal(row){
+    var isEdit = !!row;
+    row = row || {};
+    openModal(
+      '<h3>' + (isEdit ? 'Edit author' : 'Add author') + '</h3>' +
+      '<form id="authorForm">' +
+        '<div class="field"><label>Name</label><input type="text" id="auName" value="' + escapeHtml(row.name||'') + '" required></div>' +
+        '<div class="field"><label>Role / subtitle</label><input type="text" id="auRole" value="' + escapeHtml(row.role||'') + '" placeholder="e.g. Writer on Islamic spirituality"></div>' +
+        '<div class="field"><label>Bio</label><textarea id="auBio">' + escapeHtml(row.bio||'') + '</textarea></div>' +
+        '<div class="checkbox-row"><input type="checkbox" id="auFeatured" ' + (row.is_featured ? 'checked' : '') + '><label for="auFeatured" style="margin:0;">Show as the featured author on the homepage</label></div>' +
+        '<p style="font-size:12.5px; margin-bottom:16px;">Checking this un-features any other author automatically.</p>' +
+        '<div class="modal-actions">' +
+          '<button type="button" class="btn btn-outline" id="cancelModalBtn">Cancel</button>' +
+          '<button type="submit" class="btn btn-solid" style="width:auto;">' + (isEdit ? 'Save changes' : 'Add author') + '</button>' +
+        '</div>' +
+      '</form>'
+    );
+    document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
+    document.getElementById('authorForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      var makeFeatured = document.getElementById('auFeatured').checked;
+      var payload = {
+        name: document.getElementById('auName').value.trim(),
+        role: document.getElementById('auRole').value.trim(),
+        bio: document.getElementById('auBio').value.trim(),
+        is_featured: makeFeatured
+      };
+      function save(){
+        var query = isEdit ? db.from('authors').update(payload).eq('id', row.id) : db.from('authors').insert(payload);
+        query.then(function(res){
+          if(res.error){ alert(res.error.message); return; }
+          closeModal(); refreshAuthors(); refreshOverview();
+        });
+      }
+      if(makeFeatured){
+        db.from('authors').update({ is_featured:false }).neq('id', row.id || '00000000-0000-0000-0000-000000000000').then(save);
+      } else {
+        save();
+      }
+    });
+  }
+
+  document.getElementById('addAuthorBtn').addEventListener('click', function(){ openAuthorModal(null); });
+
+})();
+</script>
+</body>
+</html>
