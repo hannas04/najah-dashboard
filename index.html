@@ -348,7 +348,7 @@
   document.querySelectorAll('.nav-item').forEach(function(item){
     item.addEventListener('click', function(){
       var view = item.getAttribute('data-view');
-      if(view === 'site'){ window.open('index.html', '_blank'); return; }
+      if(view === 'site'){ window.open('https://www.najahlibrary.com.ng', '_blank'); return; }
       document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
       item.classList.add('active');
       document.querySelectorAll('.view').forEach(function(v){ v.classList.add('hidden'); });
