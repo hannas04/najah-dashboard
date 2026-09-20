@@ -35,13 +35,11 @@
 
   .hidden{ display:none !important; }
 
-  /* ---------- Config notice ---------- */
   .config-banner{
     background:#3A2A14; color:#F3E6C9; padding:12px 24px; font-size:13.5px; text-align:center;
   }
   .config-banner code{ background:rgba(255,255,255,0.12); padding:2px 6px; border-radius:2px; }
 
-  /* ---------- Login screen ---------- */
   .login-screen{
     min-height:100vh; display:flex; align-items:center; justify-content:center;
     background:radial-gradient(120% 140% at 50% -10%, #235746 0%, var(--primary) 42%, var(--primary-dark) 100%);
@@ -77,7 +75,6 @@
   .btn-sm{ padding:7px 14px; font-size:13px; }
   .login-error{ font-size:13px; color:var(--danger); margin-top:14px; min-height:16px; }
 
-  /* ---------- App shell ---------- */
   .app-shell{ display:flex; min-height:100vh; }
   .sidebar{
     width:230px; flex:none; background:var(--primary-dark); color:#EDEBDD;
@@ -100,13 +97,11 @@
   .panel-head h2{ font-size:24px; }
   .panel-head p{ font-size:13.5px; margin-top:4px; }
 
-  /* ---------- Stat cards (overview) ---------- */
   .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); margin-bottom:36px; }
   .stat-card{ background:var(--bg); padding:24px; }
   .stat-card strong{ display:block; font-family:var(--serif); font-size:30px; color:var(--primary-dark); }
   .stat-card span{ font-size:13px; }
 
-  /* ---------- Data table ---------- */
   .table-wrap{ border:1px solid var(--line); background:var(--bg); overflow-x:auto; }
   table{ width:100%; border-collapse:collapse; font-size:13.5px; min-width:640px; }
   th, td{ text-align:left; padding:12px 16px; border-bottom:1px solid var(--line); white-space:nowrap; }
@@ -116,8 +111,9 @@
   .row-actions{ display:flex; gap:8px; }
   .empty-row td{ text-align:center; color:var(--ink-soft); padding:32px; }
   .tag-pill{ border:1px solid var(--line); border-radius:12px; padding:2px 9px; font-size:12px; }
+  .book-thumb{ width:34px; height:46px; border-radius:2px; object-fit:cover; border:1px solid var(--line); display:block; }
+  .book-thumb-placeholder{ width:34px; height:46px; border-radius:2px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-family:var(--serif); color:#fff; font-size:15px; }
 
-  /* ---------- Modal ---------- */
   .modal-overlay{
     position:fixed; inset:0; background:rgba(15,46,36,0.45); display:flex; align-items:center; justify-content:center;
     padding:24px; z-index:200;
@@ -134,6 +130,8 @@
   .upload-row{ display:flex; gap:8px; align-items:center; }
   .upload-row input[type="file"]{ flex:1; font-size:12.5px; }
   .upload-status{ font-size:12px; margin-top:6px; }
+  .cover-preview-row{ display:flex; align-items:center; gap:14px; margin-bottom:10px; }
+  .cover-preview{ width:64px; height:88px; border-radius:2px; border:1px solid var(--line); object-fit:cover; background:var(--surface); }
 
   @media (max-width: 860px){
     .app-shell{ flex-direction:column; }
@@ -218,7 +216,7 @@
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Title</th><th>Author</th><th>Category</th><th>Language</th><th>Pages</th><th>Format</th><th></th></tr></thead>
+          <thead><tr><th>Cover</th><th>Title</th><th>Author</th><th>Category</th><th>Language</th><th>Pages</th><th>Format</th><th></th></tr></thead>
           <tbody id="booksTableBody"></tbody>
         </table>
       </div>
@@ -281,9 +279,11 @@
      1. PASTE YOUR SUPABASE PROJECT DETAILS HERE
      Project Settings -> API in your Supabase dashboard.
   ===================================================================== */
-  var SUPABASE_URL = "https://exlgdkjjcwcawzstaooi.supabase.co";       // e.g. "https://abcdEFGH.supabase.co"
-  var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4bGdka2pqY3djYXd6c3Rhb29pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyNTc2OTAsImV4cCI6MjEwNDgzMzY5MH0.i33ciFHGLC9WH4LUhcjhRc8QvlmU9qXtOiN6KL1YuCQ";  // the "anon public" key
+  var SUPABASE_URL = "https://exlgdkjjcwcawzstaooi.supabase.co";
+  var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4bGdka2pqY3djYXd6c3Rhb29pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyNTc2OTAsImV4cCI6MjEwNDgzMzY5MH0.i33ciFHGLC9WH4LUhcjhRc8QvlmU9qXtOiN6KL1YuCQ";
 
+  /* Category suggestions — the field is free text, so you can type any
+     category you like; these just show up as autocomplete suggestions. */
   var CATEGORY_OPTIONS = ["quran","hadith","fiqh","seerah","aqeedah","tazkiyah","children"];
   var CATEGORY_LABEL = { quran:"Qur'an", hadith:"Hadith", fiqh:"Fiqh", seerah:"Seerah", aqeedah:"Aqeedah", tazkiyah:"Tazkiyah", children:"Children" };
 
@@ -298,6 +298,10 @@
   function escapeHtml(str){
     return String(str == null ? '' : str)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function categoryLabel(cat){
+    return CATEGORY_LABEL[cat] || cat;
   }
 
   var loginScreen = document.getElementById('loginScreen');
@@ -383,14 +387,18 @@
     db.from('books').select('*').order('created_at', { ascending:false }).then(function(res){
       var body = document.getElementById('booksTableBody');
       if(res.error || !res.data || !res.data.length){
-        body.innerHTML = '<tr class="empty-row"><td colspan="7">No eBooks yet — add your first one.</td></tr>';
+        body.innerHTML = '<tr class="empty-row"><td colspan="8">No eBooks yet — add your first one.</td></tr>';
         return;
       }
       body.innerHTML = res.data.map(function(b){
+        var thumb = b.cover_image_url
+          ? '<img class="book-thumb" src="' + escapeHtml(b.cover_image_url) + '" alt="">'
+          : '<div class="book-thumb-placeholder" style="background:' + escapeHtml(b.cover_color||'#1B4B3D') + '">' + escapeHtml((b.title||'?').trim().charAt(0).toUpperCase()) + '</div>';
         return '<tr>' +
+          '<td>' + thumb + '</td>' +
           '<td>' + escapeHtml(b.title) + '</td>' +
           '<td>' + escapeHtml(b.author_name) + '</td>' +
-          '<td><span class="tag-pill">' + escapeHtml(CATEGORY_LABEL[b.category] || b.category) + '</span></td>' +
+          '<td><span class="tag-pill">' + escapeHtml(categoryLabel(b.category)) + '</span></td>' +
           '<td>' + escapeHtml(b.language) + '</td>' +
           '<td>' + (b.pages || '') + '</td>' +
           '<td>' + escapeHtml(b.format) + '</td>' +
@@ -421,19 +429,36 @@
     openModal(
       '<h3>' + (isEdit ? 'Edit eBook' : 'Add eBook') + '</h3>' +
       '<form id="bookForm">' +
+        '<div class="field">' +
+          '<label>Cover image</label>' +
+          '<div class="cover-preview-row">' +
+            '<img class="cover-preview" id="bkCoverPreview" src="' + escapeHtml(row.cover_image_url || '') + '" style="' + (row.cover_image_url ? '' : 'display:none;') + '">' +
+            '<div style="flex:1;">' +
+              '<div class="upload-row">' +
+                '<input type="file" id="bkCoverFile" accept="image/*">' +
+                '<button type="button" class="btn btn-outline btn-sm" id="bkCoverUploadBtn">Upload</button>' +
+              '</div>' +
+              '<div class="upload-status" id="bkCoverStatus"></div>' +
+            '</div>' +
+          '</div>' +
+          '<input type="text" id="bkCoverImageUrl" value="' + escapeHtml(row.cover_image_url||'') + '" placeholder="Cover image URL (filled automatically after upload, or paste your own link)">' +
+        '</div>' +
         '<div class="field"><label>Title</label><input type="text" id="bkTitle" value="' + escapeHtml(row.title||'') + '" required></div>' +
         '<div class="field"><label>Author name</label><input type="text" id="bkAuthor" value="' + escapeHtml(row.author_name||'') + '" required></div>' +
         '<div class="field-row">' +
-          '<div class="field"><label>Category</label><select id="bkCategory">' +
-            CATEGORY_OPTIONS.map(function(c){ return '<option value="'+c+'"'+(row.category===c?' selected':'')+'>'+CATEGORY_LABEL[c]+'</option>'; }).join('') +
-          '</select></div>' +
+          '<div class="field"><label>Category</label>' +
+            '<input type="text" id="bkCategory" list="bkCategoryList" value="' + escapeHtml(row.category||'') + '" placeholder="Type any category" required>' +
+            '<datalist id="bkCategoryList">' +
+              CATEGORY_OPTIONS.map(function(c){ return '<option value="'+c+'">'+CATEGORY_LABEL[c]+'</option>'; }).join('') +
+            '</datalist>' +
+          '</div>' +
           '<div class="field"><label>Language</label><input type="text" id="bkLanguage" value="' + escapeHtml(row.language||'English') + '"></div>' +
         '</div>' +
         '<div class="field-row">' +
           '<div class="field"><label>Pages</label><input type="number" id="bkPages" value="' + (row.pages||'') + '"></div>' +
           '<div class="field"><label>Format</label><input type="text" id="bkFormat" value="' + escapeHtml(row.format||'PDF') + '"></div>' +
         '</div>' +
-        '<div class="field"><label>Cover tint (hex)</label><input type="text" id="bkColor" value="' + escapeHtml(row.cover_color||'#1B4B3D') + '"></div>' +
+        '<div class="field"><label>Cover tint (used if no image is uploaded)</label><input type="text" id="bkColor" value="' + escapeHtml(row.cover_color||'#1B4B3D') + '"></div>' +
         '<div class="field"><label>Description</label><textarea id="bkDescription">' + escapeHtml(row.description||'') + '</textarea></div>' +
         '<div class="field">' +
           '<label>Book file (PDF/EPUB)</label>' +
@@ -452,6 +477,24 @@
     );
 
     document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
+
+    document.getElementById('bkCoverUploadBtn').addEventListener('click', function(){
+      var fileInput = document.getElementById('bkCoverFile');
+      var status = document.getElementById('bkCoverStatus');
+      var file = fileInput.files[0];
+      if(!file){ status.textContent = 'Choose an image first.'; return; }
+      status.textContent = 'Uploading…';
+      var path = 'covers/' + Date.now() + '-' + file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+      db.storage.from('book-files').upload(path, file).then(function(res){
+        if(res.error){ status.textContent = 'Upload failed: ' + res.error.message; return; }
+        var pub = db.storage.from('book-files').getPublicUrl(path);
+        document.getElementById('bkCoverImageUrl').value = pub.data.publicUrl;
+        var preview = document.getElementById('bkCoverPreview');
+        preview.src = pub.data.publicUrl;
+        preview.style.display = '';
+        status.textContent = 'Uploaded ✓';
+      });
+    });
 
     document.getElementById('bkUploadBtn').addEventListener('click', function(){
       var fileInput = document.getElementById('bkFile');
@@ -473,11 +516,12 @@
       var payload = {
         title: document.getElementById('bkTitle').value.trim(),
         author_name: document.getElementById('bkAuthor').value.trim(),
-        category: document.getElementById('bkCategory').value,
+        category: document.getElementById('bkCategory').value.trim().toLowerCase(),
         language: document.getElementById('bkLanguage').value.trim() || 'English',
         pages: parseInt(document.getElementById('bkPages').value, 10) || null,
         format: document.getElementById('bkFormat').value.trim() || 'PDF',
         cover_color: document.getElementById('bkColor').value.trim() || '#1B4B3D',
+        cover_image_url: document.getElementById('bkCoverImageUrl').value.trim(),
         description: document.getElementById('bkDescription').value.trim(),
         file_url: document.getElementById('bkFileUrl').value.trim()
       };
